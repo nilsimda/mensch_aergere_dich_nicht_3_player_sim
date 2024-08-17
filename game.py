@@ -2,7 +2,7 @@ import random
 import time
 from typing import List
 
-# TODO: clashes
+# TODO: testing
 
 
 class Figure:
@@ -13,7 +13,7 @@ class Figure:
         self.is_done: bool = False
         self.is_start: bool = True
 
-    def move(self, number: int) -> None:
+    def move(self, number: int, other_players: List) -> None:
         assert not self.is_done, "Cannot move figure thats already done."
         if self.is_start:
             self.is_start = number != 6
@@ -26,6 +26,14 @@ class Figure:
                 self.is_done = True
             else:
                 self.current_position = new_position
+                for other_player in other_players:
+                    for other in other_player.figures:
+                        if (
+                            other.is_movable()
+                            and other.current_position == self.current_position
+                        ):
+                            other.is_start = True
+                            other.current_position = other.starting_position
 
     def is_movable(self):
         return not (self.is_start or self.is_done)
@@ -75,16 +83,16 @@ class Player:
         n_throws = 1 if self.can_move() else 3
         return max(random.randint(1, 6) for _ in range(n_throws))
 
-    def move(self) -> int:
+    def move(self, other_players: List) -> int:
         roll = self._roll_dice()
         figure = self._select_figure(roll)
-        figure.move(roll)
+        figure.move(roll, other_players)
         return roll
 
-    def play(self) -> None:
-        roll = self.move()
+    def play(self, other_players: List) -> None:
+        roll = self.move(other_players)
         while not self.has_won() and roll == 6:
-            roll = self.move()
+            roll = self.move(other_players)
 
 
 class Game:
@@ -95,7 +103,12 @@ class Game:
     def run_game(self, print_board: bool = False) -> Player:
         while True:
             for player in self.players:
-                player.play()
+                other_players = [
+                    other_player
+                    for other_player in self.players
+                    if other_player != player
+                ]
+                player.play(other_players)
                 if print_board:
                     print(self)
                     time.sleep(1)
@@ -103,7 +116,7 @@ class Game:
                     return player
 
     def __repr__(self) -> str:
-        board = ["*"] * 40
+        board = ["*" for _ in range(40)]
         start = [["S" for _ in range(4)] for _ in range(3)]
         end = [["E" for _ in range(4)] for _ in range(3)]
 
