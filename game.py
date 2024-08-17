@@ -1,6 +1,8 @@
 import random
 import time
+from termcolor import colored
 from typing import List
+
 
 # TODO: testing
 
@@ -55,19 +57,19 @@ class Player:
 
     # always select the figure that is furthest along
     def _select_figure(self, roll: int) -> Figure:
-        for figure in self.figures:
+        for figure in self.figures:  # clear starting position
             if (
                 figure.is_movable()
                 and figure.current_position == figure.starting_position
             ):
                 return figure
 
-        if roll == 6:
+        if roll == 6:  # move new figure to start if possible
             for figure in self.figures:
                 if figure.is_start:
                     return figure
 
-        if self.can_move():
+        if self.can_move():  # actual move policy
             movable_figures = self._movable_figures()
             figure_pos = {
                 i: figure.current_position + 40
@@ -111,23 +113,30 @@ class Game:
                 player.play(other_players)
                 if print_board:
                     print(self)
-                    time.sleep(1)
+                    # time.sleep(2)
                 if player.has_won():
                     return player
 
     def __repr__(self) -> str:
+        colors = ["yellow", "green", "red"]
         board = ["*" for _ in range(40)]
-        start = [["S" for _ in range(4)] for _ in range(3)]
-        end = [["E" for _ in range(4)] for _ in range(3)]
+        start = [[colored("S", colors[i]) for _ in range(4)] for i in range(3)]
+        end = [[colored("E", colors[i]) for _ in range(4)] for i in range(3)]
 
         for player in self.players:
             for figure in player.figures:
                 if figure.is_start:
-                    start[player.idx - 1][figure.idx] = str(player.idx)
+                    start[player.idx - 1][figure.idx] = colored(
+                        str(player.idx), colors[player.idx - 1]
+                    )
                 elif figure.is_done:
-                    end[player.idx - 1][figure.idx] = str(player.idx)
+                    end[player.idx - 1][figure.idx] = colored(
+                        str(player.idx), colors[player.idx - 1]
+                    )
                 else:
-                    board[figure.current_position] = str(player.idx)
+                    board[figure.current_position] = colored(
+                        str(player.idx), colors[player.idx - 1]
+                    )
 
         cross_board = [
             f"{start[0][0]} {start[0][1]} _ _ {board[18]} {board[19]} {board[20]} _ _ {start[1][0]} {start[1][1]}",
@@ -136,7 +145,7 @@ class Game:
             f"_ _ _ _ {board[15]} {end[1][2]} {board[23]} _ _ _ _",
             f"{board[10]} {board[11]} {board[12]} {board[13]} {board[14]} {end[1][3]} {board[24]} {board[25]} {board[26]} {board[27]} {board[28]}",
             f"{board[9]} {end[0][0]} {end[0][1]} {end[0][2]} {end[0][3]} + {end[2][0]} {end[2][1]} {end[2][2]} {end[2][3]} {board[29]}",
-            f"{board[8]} {board[7]} {board[6]} {board[5]} {board[4]} E {board[30]} {board[31]} {board[32]} {board[33]} {board[34]}",
+            f"{board[8]} {board[7]} {board[6]} {board[5]} {board[4]} E {board[34]} {board[33]} {board[32]} {board[31]} {board[30]}",
             f"_ _ _ _ {board[3]} E {board[35]} _ _ _ _",
             f"_ _ _ _ {board[2]} E {board[36]} _ _ _ _",
             f"_ _ _ _ {board[1]} E {board[37]} _ _ {start[2][0]} {start[2][1]}",
