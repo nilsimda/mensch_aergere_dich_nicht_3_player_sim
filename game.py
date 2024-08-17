@@ -2,8 +2,12 @@ import random
 import time
 from termcolor import colored
 from typing import List
+import argparse
 
 
+# TODO: allow variable number of players, argparse
+# TODO: force players to kick figure if possible
+# TODO: different policies (random, move first, move last, no overtaking)
 # TODO: testing
 
 
@@ -102,7 +106,7 @@ class Game:
         self.players = [Player(i) for i in range(1, 4)]
         random.shuffle(self.players)  # someone different should start every time
 
-    def run_game(self, print_board: bool = False) -> Player:
+    def run_game(self, print_board: bool = False, sleep_time: float = 1) -> Player:
         while True:
             for player in self.players:
                 other_players = [
@@ -113,12 +117,12 @@ class Game:
                 player.play(other_players)
                 if print_board:
                     print(self)
-                    # time.sleep(2)
+                    time.sleep(sleep_time)
                 if player.has_won():
                     return player
 
     def __repr__(self) -> str:
-        colors = ["yellow", "green", "red"]
+        colors: List = ["yellow", "green", "red", "blue"]
         board = ["*" for _ in range(40)]
         start = [[colored("S", colors[i]) for _ in range(4)] for i in range(3)]
         end = [[colored("E", colors[i]) for _ in range(4)] for i in range(3)]
@@ -156,5 +160,36 @@ class Game:
 
 
 if __name__ == "__main__":
-    winner = Game().run_game(print_board=True)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-s",
+        "--sleep_time",
+        type=float,
+        help="the amount of time to sleep between printing each new board state",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--print_board",
+        action="store_true",
+        help="wether to print the board for each step or just show the winner",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--number_of_players",
+        type=int,
+        help="The number of players (has to be between 2 and 4, both included)",
+        default=3,
+    )
+
+    args = parser.parse_args()
+
+    if args.number_of_players > 4 or args.number_of_players < 2:
+        raise Exception(
+            f"Number of Players has to be between 2 and 4, but was {args.number_of_players}"
+        )
+
+    winner = Game().run_game(print_board=args.print_board, sleep_time=args.sleep_time)
     print(f"{winner.idx} has won.")
