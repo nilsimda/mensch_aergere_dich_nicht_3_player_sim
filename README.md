@@ -7,7 +7,7 @@ for example can be run via:
 
 The output should look something like this:
 
-https://github.com/nilsimda/mensch_aergere_dich_nicht_3_player_sim/3_player_recording.mov
+https://github.com/nilsimda/mensch_aergere_dich_nicht_3_player_sim/blob/main/3_player_recording.mov
 
 #### Large number of sims
 
