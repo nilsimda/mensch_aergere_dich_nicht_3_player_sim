@@ -1,7 +1,6 @@
 import random
 import time
 from termcolor import colored
-from typing import List
 import argparse
 
 
@@ -19,7 +18,7 @@ class Figure:
         self.is_done: bool = False
         self.is_start: bool = True
 
-    def move(self, number: int, other_players: List) -> None:
+    def move(self, number: int, other_players: list) -> None:
         assert not self.is_done, "Cannot move figure thats already done."
         if self.is_start:
             self.is_start = number != 6
@@ -56,7 +55,7 @@ class Player:
     def can_move(self) -> bool:
         return not all(figure.is_start | figure.is_done for figure in self.figures)
 
-    def _movable_figures(self) -> List[Figure]:
+    def _movable_figures(self) -> list[Figure]:
         return [figure for figure in self.figures if figure.is_movable()]
 
     # always select the figure that is furthest along
@@ -89,13 +88,13 @@ class Player:
         n_throws = 1 if self.can_move() else 3
         return max(random.randint(1, 6) for _ in range(n_throws))
 
-    def move(self, other_players: List) -> int:
+    def move(self, other_players: list) -> int:
         roll = self._roll_dice()
         figure = self._select_figure(roll)
         figure.move(roll, other_players)
         return roll
 
-    def play(self, other_players: List) -> None:
+    def play(self, other_players: list) -> None:
         roll = self.move(other_players)
         while not self.has_won() and roll == 6:
             roll = self.move(other_players)
@@ -122,7 +121,7 @@ class Game:
                     return player
 
     def __repr__(self) -> str:
-        colors: List = ["yellow", "green", "red", "blue"]
+        colors: list = ["yellow", "green", "red", "blue"]
         board = ["*" for _ in range(40)]
         start = [[colored("S", colors[i]) for _ in range(4)] for i in range(3)]
         end = [[colored("E", colors[i]) for _ in range(4)] for i in range(3)]
@@ -167,6 +166,7 @@ if __name__ == "__main__":
         "--sleep_time",
         type=float,
         help="the amount of time to sleep between printing each new board state",
+        default=0,
     )
 
     parser.add_argument(
